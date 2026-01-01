@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>若者のための選挙検索</title>
+</head>
+<body>
+  <h1>若者のための選挙検索</h1>
+  <input type="text" id="searchBox" placeholder="例：投票方法" />
+  <div id="results"></div>
+
+  <p style="font-size:12px;">※AI要約を人が確認しています。正確な情報は元記事をご確認ください。</p>
+
+  <script>
+    let articles = [];
+
+    fetch('/api/articles')
+      .then(res => res.json())
+      .then(data => {
+        articles = data;
+        render(articles);
+      });
+
+    const searchBox = document.getElementById('searchBox');
+    const results = document.getElementById('results');
+
+    function render(list) {
+      results.innerHTML = '';
+      list.forEach(a => {
+        const div = document.createElement('div');
+        div.innerHTML = `<h3>${a.title}</h3><p>${a.summary}</p><a href="${a.url}" target="_blank">元記事</a><hr>`;
+        results.appendChild(div);
+      });
+    }
+
+    searchBox.addEventListener('input', () => {
+      const k = searchBox.value;
+      const filtered = articles.filter(a =>
+        a.title.includes(k) ||
+        a.summary.includes(k) ||
+        a.tags.some(t => t.includes(k))
+      );
+      render(filtered);
+    });
+  </script>
+</body>
+</html>
